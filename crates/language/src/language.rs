@@ -583,7 +583,7 @@ impl<'de> Deserialize<'de> for BracketPairConfig {
             #[serde(default)]
             not_in: Vec<String>,
             #[serde(default)]
-            pub close_only_in: Vec<String>,
+            close_only_in: Vec<String>,
         }
 
         let result = Vec::<Entry>::deserialize(deserializer)?;
@@ -1776,18 +1776,13 @@ impl LanguageScope {
     /// Returns a list of bracket pairs for a given language with an additional
     /// piece of information about whether the particular bracket pair is currently active for a given language.
     pub fn brackets<'a>(&'a self) -> impl Iterator<Item = Brackets<'a>> + 'a {
-        let (mut disabled_ids, mut forced_close_ids) = dbg!(self.config_override()).map_or(
-            {
-                eprintln!("{}", std::backtrace::Backtrace::force_capture());
-                (&[] as _, &[] as _)
-            },
-            |o| {
-                dbg!(
+        let (mut disabled_ids, mut forced_close_ids) =
+            dbg!(self.config_override()).map_or((&[] as _, &[] as _), |o| {
+                (
                     o.disabled_bracket_ixs.as_slice(),
                     o.forced_bracket_close_ixs.as_slice(),
                 )
-            },
-        );
+            });
         let bracket_config = &self.language.config.brackets;
         bracket_config
             .pairs
@@ -1802,14 +1797,18 @@ impl LanguageScope {
                     }
                 }
 
-                let mut close_enabled = pair.close && forced_close_ids.is_empty();
-                if let Some(next_disabled_close_ix) = forced_close_ids.first() {
-                    if ix == *next_disabled_close_ix as usize {
+                let forced_close_scopes = &bracket_config.forced_close_scopes_by_bracket_ix[ix];
+                dbg!(&forced_close_ids, &forced_close_scopes);
+                // let mut close_enabled = pair.close && forced_close_scopes.is_empty();
+                let mut close_enabled = pair.close && forced_close_scopes.is_empty();
+                if let Some(next_forced_close_ix) = forced_close_ids.first() {
+                    if ix == *next_forced_close_ix as usize {
                         dbg!("!!!!!!!!!!!!");
                         forced_close_ids = &forced_close_ids[1..];
                         close_enabled = true;
                     }
                 }
+                dbg!(close_enabled);
 
                 Brackets {
                     pair,

@@ -4351,7 +4351,7 @@ async fn test_autoclose_pairs_exclusions(cx: &mut gpui::TestAppContext) {
     let language = Arc::new(
         Language::new(
             LanguageConfig {
-                name: "Rust".into(),
+                name: "rust".into(),
                 brackets: BracketPairConfig {
                     pairs: vec![BracketPair {
                         start: "<".into(),
@@ -4383,6 +4383,7 @@ async fn test_autoclose_pairs_exclusions(cx: &mut gpui::TestAppContext) {
 ] @comment
 [
     (identifier)
+    (type_identifier)
 ] @angle_bracket_close"#,
         )
         .unwrap(),
@@ -4420,35 +4421,39 @@ async fn test_autoclose_pairs_exclusions(cx: &mut gpui::TestAppContext) {
     //     .unindent(),
     // );
 
+    // autoclose the generic param near the type
+    cx.set_state(&r#"struct Fooˇ"#.unindent());
+    cx.update_editor(|view, cx| {
+        view.handle_input("<", cx);
+    });
+    cx.assert_editor_state(&"struct Foo<ˇ>\n".unindent());
+
     // autoclose the generic param near `fn foo`
     cx.set_state(&r#"fn fooˇ"#.unindent());
-
-    dbg!("????????????????????????????");
     cx.update_editor(|view, cx| {
         view.handle_input("<", cx);
     });
     cx.assert_editor_state(&"fn foo<ˇ>\n".unindent());
 
-    // // do not autoclose the bracket if the cursor is in the
-    // cx.set_state(
-    //     &r#"
-    //     fn foo() {
-    //         let a = 34 ˇ
-    //     }
-    //     "#
-    //     .unindent(),
-    // );
-    // cx.update_editor(|view, cx| {
-    //     view.handle_input("<", cx);
-    //     view.handle_input("<", cx);
-    // });
-    // cx.assert_editor_state(
-    //     &r#"
-    //     fn foo() {
-    //         let a = 34 <<ˇ
-    //     }"#
-    //     .unindent(),
-    // );
+    // do not autoclose the bracket if the cursor is in the
+    cx.set_state(
+        &r#"
+        fn foo() {
+            let a = 34 ˇ
+        }
+        "#
+        .unindent(),
+    );
+    cx.update_editor(|view, cx| {
+        view.handle_input("<", cx);
+        view.handle_input("<", cx);
+    });
+    cx.assert_editor_state(
+        &r#"fn foo() {
+    let a = 34 <<ˇ
+}
+"#,
+    );
 }
 
 #[gpui::test]

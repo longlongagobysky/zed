@@ -8,4 +8,5 @@
 ] @comment
 [
   (identifier)
+  (type_identifier)
 ] @angle_bracket_close
