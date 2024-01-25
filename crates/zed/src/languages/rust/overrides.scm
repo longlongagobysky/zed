@@ -6,3 +6,6 @@
   (line_comment)
   (block_comment)
 ] @comment
+[
+  (identifier)
+] @angle_bracket_close

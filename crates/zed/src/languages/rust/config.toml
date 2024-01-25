@@ -6,7 +6,7 @@ brackets = [
     { start = "{", end = "}", close = true, newline = true },
     { start = "[", end = "]", close = true, newline = true },
     { start = "(", end = ")", close = true, newline = true },
-    { start = "<", end = ">", close = true, newline = true, not_in = ["string", "comment"], close_not_in = ["operator"] },
+    { start = "<", end = ">", close = true, newline = true, not_in = ["string", "comment"], close_only_in = ["angle_bracket_close"] },
     { start = "\"", end = "\"", close = true, newline = false, not_in = ["string"] },
     { start = "/*", end = " */", close = true, newline = false, not_in = ["string", "comment"] },
 ]

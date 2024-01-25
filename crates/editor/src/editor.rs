@@ -2282,6 +2282,7 @@ impl Editor {
                     // `text` can be empty when an user is using IME (e.g. Chinese Wubi Simplified)
                     //  and they are removing the character that triggered IME popup.
                     for brackets_pair in scope.brackets() {
+                        dbg!(&brackets_pair, &scope.language.name());
                         let pair = brackets_pair.pair;
                         if brackets_pair.enabled
                             && brackets_pair.close_enabled
